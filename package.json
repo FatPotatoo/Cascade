@@ -1,0 +1,17 @@
+{
+  "name": "cascade",
+  "version": "0.2.0",
+  "description": "Guide falling balls into a bucket by physically arranging colored sticky notes on a real wall, seen through your webcam.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "matter-js": "^0.20.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0"
+  }
+}

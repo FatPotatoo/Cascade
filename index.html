@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cascade</title>
+    <!--
+      OpenCV.js is a large (~8 MB) WASM build, so we load it from the official
+      CDN as a classic script rather than bundling it. `src/vision/opencv.js`
+      waits for the `cv` global / its runtime-initialized callback.
+      Loaded `async` so it does not block first paint; the app shows a loading
+      state until vision is ready.
+    -->
+    <script async src="https://docs.opencv.org/4.10.0/opencv.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="stage"></canvas>
+
+      <div id="overlay-ui">
+        <div id="status" class="status">Starting…</div>
+
+        <div id="legend" class="legend hidden">
+          <span class="legend-item legend-pink">◣ Pink — bounce / aim</span>
+          <span class="legend-item legend-blue">▦ Blue — brake</span>
+        </div>
+
+        <div id="camera-error" class="panel hidden">
+          <h2>Camera needed</h2>
+          <p>Cascade looks at your wall through your webcam. Please allow camera
+             access, then reload.</p>
+          <p class="muted">Everything is processed on your device — no video
+             ever leaves your browser.</p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
