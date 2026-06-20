@@ -62,10 +62,10 @@ export const CONFIG = {
     minAspect: 0.35,
     maxAspect: 2.9,
     morphKernel: 3, // open/close kernel size to denoise the mask
-    // The HSV threshold tends to miss a note's lighter/less-saturated edges,
-    // so the fitted box comes out slightly small. Grow it outward for full
-    // coverage of the physical note (collider + visual).
-    boxScale: 1.18,
+    // Small outward margin to cover the note's anti-aliased rim. Kept low
+    // because the mask close + looser calibration already capture most of the
+    // note; over-scaling makes the box float past the edges.
+    boxScale: 1.06,
   },
 
   // --- Tracking ---------------------------------------------------------

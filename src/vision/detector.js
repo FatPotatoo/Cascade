@@ -33,8 +33,22 @@ export class Detector {
     this.canvas.height = ph;
     const n = pw * ph;
     this.mask = new Uint8Array(n);
+    this.tmpA = new Uint8Array(n);
+    this.tmpB = new Uint8Array(n);
     this.visited = new Uint8Array(n);
     this.stack = new Int32Array(n);
+  }
+
+  /**
+   * Morphological close (dilate then erode, 3×3, separable) to fill small
+   * holes and smooth the blob boundary so minAreaRect hugs the real note edge.
+   */
+  _close() {
+    const { mask, tmpA, tmpB, pw, ph } = this;
+    dilateH(mask, tmpA, pw, ph);
+    dilateV(tmpA, tmpB, pw, ph);
+    erodeH(tmpB, tmpA, pw, ph);
+    erodeV(tmpA, mask, pw, ph);
   }
 
   /**
@@ -67,6 +81,7 @@ export class Detector {
 
     for (const color of colors) {
       buildMask(data, mask, n, color.range);
+      this._close(); // solidify + smooth the mask for a tighter rectangle fit
       visited.fill(0);
 
       for (let seed = 0; seed < n; seed++) {
@@ -140,8 +155,46 @@ export class Detector {
   }
 
   dispose() {
-    this.mask = this.visited = this.stack = null;
+    this.mask = this.tmpA = this.tmpB = this.visited = this.stack = null;
     this.pw = this.ph = 0;
+  }
+}
+
+// --- Separable 3×3 morphology (binary) --------------------------------------
+function dilateH(src, dst, pw, ph) {
+  for (let y = 0; y < ph; y++) {
+    const row = y * pw;
+    for (let x = 0; x < pw; x++) {
+      const i = row + x;
+      dst[i] = src[i] || (x > 0 && src[i - 1]) || (x < pw - 1 && src[i + 1]) ? 1 : 0;
+    }
+  }
+}
+function dilateV(src, dst, pw, ph) {
+  for (let y = 0; y < ph; y++) {
+    const row = y * pw;
+    for (let x = 0; x < pw; x++) {
+      const i = row + x;
+      dst[i] = src[i] || (y > 0 && src[i - pw]) || (y < ph - 1 && src[i + pw]) ? 1 : 0;
+    }
+  }
+}
+function erodeH(src, dst, pw, ph) {
+  for (let y = 0; y < ph; y++) {
+    const row = y * pw;
+    for (let x = 0; x < pw; x++) {
+      const i = row + x;
+      dst[i] = src[i] && x > 0 && x < pw - 1 && src[i - 1] && src[i + 1] ? 1 : 0;
+    }
+  }
+}
+function erodeV(src, dst, pw, ph) {
+  for (let y = 0; y < ph; y++) {
+    const row = y * pw;
+    for (let x = 0; x < pw; x++) {
+      const i = row + x;
+      dst[i] = src[i] && y > 0 && y < ph - 1 && src[i - pw] && src[i + pw] ? 1 : 0;
+    }
   }
 }
 

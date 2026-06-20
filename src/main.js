@@ -172,9 +172,10 @@ async function startGame() {
   let detectFailures = 0;
   let detectionEnabled = true;
 
+  const WELL_DONE_MS = 1700;
   let wellDoneUntil = 0;
   physics.onCatch = () => {
-    wellDoneUntil = performance.now() + 1600;
+    wellDoneUntil = performance.now() + WELL_DONE_MS;
   };
   physics.onMiss = () => {
     /* no penalty in Zen mode — play just continues (PRD §5, §9) */
@@ -217,8 +218,9 @@ async function startGame() {
     overlay.drawBucket(physics.bucketRect);
     overlay.drawBalls(physics.balls);
 
-    const wd = (wellDoneUntil - now) / 1600;
-    overlay.drawWellDone(Math.max(0, Math.min(1, wd)));
+    if (wellDoneUntil > now) {
+      overlay.drawWellDone(1 - (wellDoneUntil - now) / WELL_DONE_MS);
+    }
 
     session.raf = requestAnimationFrame(frame);
   }
